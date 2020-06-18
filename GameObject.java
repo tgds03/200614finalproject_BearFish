@@ -1,4 +1,3 @@
-import java.util.*;
 import java.awt.event.*;
 
 abstract class GameObject {

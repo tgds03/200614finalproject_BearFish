@@ -6,7 +6,7 @@ public class Game implements Listener {
 	public static final int STAGE_ROWS = 16;
 	public static final int STAGE_COLS = 32;
 
-	public boolean isGameOver = false;
+	public boolean isVictory = false, isGameOver = false;
 	public int score = 20;
 	List<GameObject> objects;
 	Window window;
@@ -60,8 +60,16 @@ public class Game implements Listener {
 
 		//check victory
 		if (fishNum <= 0) {
-			isGameOver = true;
+			isVictory = true;
 			bear.updateEvent.receivers.remove(this);
+			return;
+		}
+		
+		//check loose
+		if (score <= 0) {
+		    isGameOver = true;
+		    bear.updateEvent.receivers.remove(this);
+		    return;
 		}
 	}
 }

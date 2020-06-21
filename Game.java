@@ -4,7 +4,7 @@ public class Game implements Listener {
 
 	//set game stage size {rows, cols}
 	public static final int STAGE_ROWS = 16;
-	public static final int STAGE_COLS = 32;
+	public static final int STAGE_COLS = 16;
 
 	public boolean isVictory = false, isGameOver = false;
 	public int score = 20;

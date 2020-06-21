@@ -1,5 +1,6 @@
 import java.awt.*;
 import javax.swing.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -7,12 +8,17 @@ import java.awt.event.KeyListener;
 
 public class Window extends JFrame implements Listener {
 
+	public static final int objectWidth = 300/Game.STAGE_COLS;
+	public static final int objectHeight = 300/Game.STAGE_ROWS;
+
 	public Game game;
 	private Container contentPane;
-	private JPanel gameStage, controlPanel, scorePanel;
-	private JLabel stageLabels[][], scoreLabel;
+	private JPanel controlPanel, scorePanel;
+	private JLabel winlooseLabel, scoreLabel;
 	private JButton controlButtons[];
 	private InputListener inputListener;	//inner class
+	private Screen screen; //ineer class
+	private String stageData[][];
 
 	//convert ActionEvents to opcode
 	public static String decodeAction(ActionEvent e) {
@@ -24,30 +30,29 @@ public class Window extends JFrame implements Listener {
 	}
 
 	public Window() {
-		setSize(300, 400);
+		setSize(320, 480);
 		setResizable(false);
 		setFocusable(true);
 		setTitle("BearFish");
 		inputListener = new InputListener();
 
 		contentPane = getContentPane();
-		contentPane.setLayout(new FlowLayout());
+		contentPane.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
 
-		//gameStage panel init
-		gameStage = new JPanel();
 		int width = Game.STAGE_COLS;
 		int height = Game.STAGE_ROWS;
-		gameStage.setLayout(new GridLayout(height, width));
 		
-		//elements in gameStage init
-		//game objects will be represented by text
-		stageLabels = new JLabel[height][width];
-		for(int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				stageLabels[i][j] = new JLabel(".  ");
-				gameStage.add(stageLabels[i][j]);
-			}
-		}
+		//init screen and game stage
+		//game objects will be stored in Character form
+		screen = new Screen();
+		screen.setLayout(new FlowLayout(FlowLayout.CENTER, 120, 120));
+		screen.setPreferredSize(new Dimension(300, 300));
+		stageData = new String[height][width];
+		for(int i = 0; i < height; i++)
+			for(int j = 0; j < width; j++)
+				stageData[i][j] = "";
+		winlooseLabel = new JLabel("");
+		screen.add(winlooseLabel);
 
 		//control panel init
 		controlPanel = new JPanel();
@@ -68,7 +73,7 @@ public class Window extends JFrame implements Listener {
 		scorePanel = new JPanel();
 		scorePanel.add(scoreLabel = new JLabel("Score : 0"));
 		
-		contentPane.add(gameStage);
+		contentPane.add(screen);
 		contentPane.add(scorePanel);
 		contentPane.add(controlPanel);
 
@@ -79,6 +84,37 @@ public class Window extends JFrame implements Listener {
 		contentPane.addKeyListener(inputListener);
 		contentPane.setFocusable(true);
 		contentPane.requestFocus();
+
+	}
+
+	class Screen extends JPanel {
+		//draw screen
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			g.setColor(Color.LIGHT_GRAY);
+			g.fillRect(0, 0, 300, 300);
+			// System.out.println(stageData);
+			// if (stageData == null) return;
+			for(int i = 0; i < Game.STAGE_ROWS; i++) {
+				for(int j = 0; j < Game.STAGE_COLS; j++) {
+					switch(stageData[i][j]) {
+						case "B":
+							g.setColor(Color.ORANGE);
+							g.fillRect(j*objectWidth, i*objectHeight, objectWidth, objectHeight);
+							break;
+						case "F":
+							g.setColor(Color.CYAN);
+							g.fillRect(j*objectWidth, i*objectHeight, objectWidth, objectHeight);
+							break;
+						default: break;
+					}
+				}
+			}
+			g.setColor(Color.BLACK);
+			g.drawRect(0, 0, 300, 300);
+			
+
+		}
 	}
 
 	//update screen, will execute by event from Bear
@@ -86,41 +122,35 @@ public class Window extends JFrame implements Listener {
 		if (game == null) return;
 		Iterable<GameObject> iter = game.objectListIter(); 
 		int x, y;
-		screenClear();
+		stageClear();
 		for(GameObject o: iter) {
 			x = o.getX();
 			y = o.getY();
-			stageLabels[y][x].setText(o.getShape());
+			stageData[y][x] = o.getShape();
 		}
+		screen.repaint();
 		scoreLabel.setText("Score : "  + game.score);
 
+		//when Bear ate every fish
 		if (game.isVictory) {
-			String strWin = "You Win!";
-			int len = strWin.length();
-			int width = Game.STAGE_COLS;
-			int height = Game.STAGE_ROWS;
-			for(int i = 0; i < len; i++)
-				stageLabels[height/2][width/2 - len/2 + i].setText(Character.toString(strWin.charAt(i)));
+			winlooseLabel.setText("You Win!");
 			game = null;
 			return;
 		}
 		
+		//when score is 0
 		if (game.isGameOver) {
-		    String strWin = "Game Over";
-		    int len = strWin.length();
-		    int width = Game.STAGE_COLS;
-		    int height = Game.STAGE_ROWS;
-		    for(int i = 0; i < len; i++) 
-				stageLabels[height/2][width/2 - len/2 + i].setText(Character.toString(strWin.charAt(i)));
+			winlooseLabel.setText("Game Over");
 			game = null;
 			return;
 		}
 	}
 
-	public void screenClear() {
+	//clear stagedata
+	public void stageClear() {
 		for(int i = 0; i < Game.STAGE_ROWS; i++) {
 			for(int j = 0; j < Game.STAGE_COLS; j++) {
-				stageLabels[i][j].setText(".");
+				stageData[i][j] = "";
 			}
 		}
 	}
@@ -135,13 +165,14 @@ public class Window extends JFrame implements Listener {
 	//start button (or space key)
 	private void newGame() {
 		game = new Game(this, (int)(7 + Math.random()*7)); 
+		winlooseLabel.setText("");
 		update();
 	}
 	class InputListener implements ActionListener, KeyListener{
 
 		public void actionPerformed(ActionEvent e) {
 			JButton b = (JButton)e.getSource();
-			if ("Start".equals(b.getText())) {
+			if ("Start!".equals(b.getText())) {
 				newGame();
 			}
 		}

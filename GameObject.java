@@ -38,9 +38,9 @@ abstract class GameObject {
 	}
 
 	private void move(int dx, int dy) {
-		 if (0 < this.x + dx && this.x + dx < Game.STAGE_COLS)
+		 if (0 <= this.x + dx && this.x + dx < Game.STAGE_COLS)
 		 	this.x += dx;
-		 if (0 < this.y + dy && this.y + dy < Game.STAGE_ROWS)
+		 if (0 <= this.y + dy && this.y + dy < Game.STAGE_ROWS)
 		 	this.y += dy;
 	}
 }

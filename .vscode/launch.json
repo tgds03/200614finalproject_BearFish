@@ -1,0 +1,24 @@
+{
+	"configurations": [
+		{
+			"type": "java",
+			"name": "CodeLens (Launch) - Main",
+			"request": "launch",
+			"mainClass": "Main",
+			"projectName": "200614finalproject_a0a73882"
+		},
+		{
+			"name": "Debug Java - Current File",
+			"type": "java",
+			"request": "launch",
+			"mainClass": "${file}",
+			"projectName": "${fileDirname}"
+		},
+		{
+			"name": "Python: Current File",
+			"type": "python",
+			"request": "launch",
+			"program": "${file}"
+		}
+	]
+}

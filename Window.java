@@ -94,7 +94,7 @@ public class Window extends JFrame implements Listener {
 		}
 		scoreLabel.setText("Score : "  + game.score);
 
-		if (game.isGameOver) {
+		if (game.isVictory) {
 			String strWin = "You Win!";
 			int len = strWin.length();
 			int width = Game.STAGE_COLS;
@@ -102,6 +102,18 @@ public class Window extends JFrame implements Listener {
 			for(int i = 0; i < len; i++)
 				stageLabels[height/2][width/2 - len/2 + i].setText(Character.toString(strWin.charAt(i)));
 			game = null;
+			return;
+		}
+		
+		if (game.isGameOver) {
+		    String strWin = "Game Over";
+		    int len = strWin.length();
+		    int width = Game.STAGE_COLS;
+		    int height = Game.STAGE_ROWS;
+		    for(int i = 0; i < len; i++) 
+				stageLabels[height/2][width/2 - len/2 + i].setText(Character.toString(strWin.charAt(i)));
+			game = null;
+			return;
 		}
 	}
 
